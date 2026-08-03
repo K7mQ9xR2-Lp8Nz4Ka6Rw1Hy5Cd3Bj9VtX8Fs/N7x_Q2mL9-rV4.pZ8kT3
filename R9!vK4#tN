@@ -87,7 +87,8 @@ function library.new(config)
 		Position = UDim2.new(0.05, 0, 0.1, 0),
 		BackgroundColor3 = theme.headerbackground,
 		Text = "",
-		AutoButtonColor = false
+		AutoButtonColor = false,
+		BorderSizePixel = 0
 	})
 	addcorner(togglebtn, 12)
 	create("UIGradient", {
@@ -114,7 +115,8 @@ function library.new(config)
 		Text = config.ToggleLabel or "T",
 		Font = theme.font,
 		TextSize = 26,
-		TextColor3 = theme.textprimary
+		TextColor3 = theme.textprimary,
+		BorderSizePixel = 0
 	})
 
 	local draggingtoggle = false
@@ -160,7 +162,8 @@ function library.new(config)
 		Parent = panel,
 		Size = UDim2.new(1, 0, 0, headerheight),
 		Position = UDim2.new(0, 0, 0, 0),
-		BackgroundColor3 = theme.headerbackground
+		BackgroundColor3 = theme.headerbackground,
+		BorderSizePixel = 0
 	})
 	addcorner(header, cornerradius)
 
@@ -173,21 +176,24 @@ function library.new(config)
 		TextColor3 = theme.textprimary,
 		Font = theme.font,
 		TextSize = 14,
-		TextXAlignment = Enum.TextXAlignment.Left
+		TextXAlignment = Enum.TextXAlignment.Left,
+		BorderSizePixel = 0
 	})
 
 	local sidebar = create("Frame", {
 		Parent = panel,
 		Size = UDim2.new(0, 140, 1, -(headerheight + footerheight + timerheight)),
 		Position = UDim2.new(0, 0, 0, headerheight),
-		BackgroundColor3 = theme.sidebarbackground
+		BackgroundColor3 = theme.sidebarbackground,
+		BorderSizePixel = 0
 	})
 
 	local indicator = create("Frame", {
 		Parent = sidebar,
 		Size = UDim2.new(0, 4, 0, 32),
 		Position = UDim2.new(0, 5, 0, 10),
-		BackgroundColor3 = theme.accentfill
+		BackgroundColor3 = theme.accentfill,
+		BorderSizePixel = 0
 	})
 	addcorner(indicator, 2)
 	self.indicator = indicator
@@ -196,6 +202,7 @@ function library.new(config)
 		Parent = sidebar,
 		Size = UDim2.new(1, -5, 1, 0),
 		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
 		ScrollBarThickness = 0,
 		ScrollBarImageColor3 = theme.accentfill,
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
@@ -213,9 +220,10 @@ function library.new(config)
 
 	local content = create("Frame", {
 		Parent = panel,
-		Size = UDim2.new(1, -145, 1, -(headerheight + footerheight + timerheight)),
-		Position = UDim2.new(0, 145, 0, headerheight),
-		BackgroundTransparency = 1
+		Size = UDim2.new(1, -140, 1, -(headerheight + footerheight + timerheight)),
+		Position = UDim2.new(0, 140, 0, headerheight),
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0
 	})
 	self.content = content
 
@@ -223,7 +231,8 @@ function library.new(config)
 		Parent = panel,
 		Size = UDim2.new(1, 0, 0, footerheight),
 		Position = UDim2.new(0, 0, 1, -(footerheight + timerheight)),
-		BackgroundColor3 = theme.headerbackground
+		BackgroundColor3 = theme.headerbackground,
+		BorderSizePixel = 0
 	})
 
 	local avatar = create("ImageLabel", {
@@ -231,7 +240,8 @@ function library.new(config)
 		Size = UDim2.new(0, 34, 0, 34),
 		Position = UDim2.new(0, 8, 0.5, -17),
 		BackgroundColor3 = theme.inputbackground,
-		Image = config.AvatarImage or ""
+		Image = config.AvatarImage or "",
+		BorderSizePixel = 0
 	})
 	addcorner(avatar, 17)
 	addstroke(avatar, theme.accentstroke, 1)
@@ -245,14 +255,16 @@ function library.new(config)
 		TextColor3 = theme.textprimary,
 		Font = theme.font,
 		TextSize = 13,
-		TextXAlignment = Enum.TextXAlignment.Left
+		TextXAlignment = Enum.TextXAlignment.Left,
+		BorderSizePixel = 0
 	})
 
 	local timerbar = create("Frame", {
 		Parent = panel,
 		Size = UDim2.new(1, 0, 0, timerheight),
 		Position = UDim2.new(0, 0, 1, -timerheight),
-		BackgroundColor3 = theme.accentselected
+		BackgroundColor3 = theme.accentselected,
+		BorderSizePixel = 0
 	})
 	addcorner(timerbar, cornerradius)
 
@@ -263,7 +275,8 @@ function library.new(config)
 		Text = "",
 		TextColor3 = theme.textprimary,
 		Font = theme.fontbody,
-		TextSize = 12
+		TextSize = 12,
+		BorderSizePixel = 0
 	})
 	self.timerlabel = timerlabel
 
@@ -289,7 +302,8 @@ function library.new(config)
 		BackgroundTransparency = 1,
 		AutoButtonColor = false,
 		Text = "",
-		ZIndex = 10
+		ZIndex = 10,
+		BorderSizePixel = 0
 	})
 
 	local isopen = true
@@ -414,7 +428,8 @@ function library:addtab(name)
 		TextColor3 = theme.textsecondary,
 		Font = theme.font,
 		TextSize = 13,
-		TextXAlignment = Enum.TextXAlignment.Left
+		TextXAlignment = Enum.TextXAlignment.Left,
+		BorderSizePixel = 0
 	})
 	addcorner(button)
 
@@ -439,7 +454,8 @@ function library:addtab(name)
 		Parent = self.content,
 		Size = UDim2.new(1, 0, 1, 0),
 		BackgroundTransparency = 1,
-		Visible = index == 1
+		Visible = index == 1,
+		BorderSizePixel = 0
 	})
 
 	local main = create("ScrollingFrame", {
@@ -447,6 +463,7 @@ function library:addtab(name)
 		Size = UDim2.new(contentsplit, 0, 1, 0),
 		Position = UDim2.new(0, 0, 0, 0),
 		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
 		ScrollBarThickness = 0,
 		ScrollBarImageColor3 = theme.accentfill,
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
@@ -468,6 +485,7 @@ function library:addtab(name)
 		Size = UDim2.new(1 - contentsplit, 0, 1, 0),
 		Position = UDim2.new(contentsplit, 0, 0, 0),
 		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
 		ScrollBarThickness = 0,
 		ScrollBarImageColor3 = theme.accentfill,
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
@@ -543,7 +561,8 @@ function tabmt:addsectionlabel(text, useside)
 		TextColor3 = theme.accentfill,
 		Font = theme.fontbody,
 		TextSize = 13,
-		TextXAlignment = Enum.TextXAlignment.Left
+		TextXAlignment = Enum.TextXAlignment.Left,
+		BorderSizePixel = 0
 	})
 end
 
@@ -557,7 +576,8 @@ function tabmt:addbutton(text, callback, useside)
 		TextColor3 = theme.textmuted,
 		Font = theme.fontbody,
 		TextSize = 13,
-		TextXAlignment = Enum.TextXAlignment.Left
+		TextXAlignment = Enum.TextXAlignment.Left,
+		BorderSizePixel = 0
 	})
 	addcorner(button)
 	addstroke(button, Color3.fromRGB(60, 30, 90), 1)
@@ -581,7 +601,8 @@ function tabmt:addtoggle(text, callback, useside)
 		TextColor3 = theme.textmuted,
 		Font = theme.fontbody,
 		TextSize = 13,
-		TextXAlignment = Enum.TextXAlignment.Left
+		TextXAlignment = Enum.TextXAlignment.Left,
+		BorderSizePixel = 0
 	})
 	addcorner(button)
 
@@ -589,7 +610,8 @@ function tabmt:addtoggle(text, callback, useside)
 		Parent = button,
 		Size = UDim2.new(0, 16, 0, 16),
 		Position = UDim2.new(1, -28, 0.5, -8),
-		BackgroundColor3 = theme.inputbackground
+		BackgroundColor3 = theme.inputbackground,
+		BorderSizePixel = 0
 	})
 	addcorner(box, 4)
 
@@ -600,7 +622,8 @@ function tabmt:addtoggle(text, callback, useside)
 		Text = "",
 		TextColor3 = theme.textprimary,
 		Font = theme.font,
-		TextSize = 12
+		TextSize = 12,
+		BorderSizePixel = 0
 	})
 
 	local enabled = false
@@ -621,7 +644,8 @@ function tabmt:addtextbox(label, placeholder, callback, useside)
 	local frame = create("Frame", {
 		Parent = parent,
 		Size = UDim2.new(1, 0, 0, 36),
-		BackgroundColor3 = theme.buttonbackground
+		BackgroundColor3 = theme.buttonbackground,
+		BorderSizePixel = 0
 	})
 	addcorner(frame)
 	addstroke(frame, Color3.fromRGB(60, 30, 90), 1)
@@ -635,7 +659,8 @@ function tabmt:addtextbox(label, placeholder, callback, useside)
 		TextColor3 = theme.textmuted,
 		Font = theme.fontbody,
 		TextSize = 13,
-		TextXAlignment = Enum.TextXAlignment.Left
+		TextXAlignment = Enum.TextXAlignment.Left,
+		BorderSizePixel = 0
 	})
 
 	local box = create("TextBox", {
@@ -649,7 +674,8 @@ function tabmt:addtextbox(label, placeholder, callback, useside)
 		Font = theme.fontbody,
 		TextSize = 12,
 		Text = "",
-		ClearTextOnFocus = false
+		ClearTextOnFocus = false,
+		BorderSizePixel = 0
 	})
 	addcorner(box, 5)
 
@@ -671,7 +697,8 @@ function tabmt:addslider(text, min, max, default, callback, useside)
 	local frame = create("Frame", {
 		Parent = parent,
 		Size = UDim2.new(1, 0, 0, 52),
-		BackgroundColor3 = theme.buttonbackground
+		BackgroundColor3 = theme.buttonbackground,
+		BorderSizePixel = 0
 	})
 	addcorner(frame)
 	addstroke(frame, Color3.fromRGB(60, 30, 90), 1)
@@ -685,7 +712,8 @@ function tabmt:addslider(text, min, max, default, callback, useside)
 		TextColor3 = theme.textmuted,
 		Font = theme.fontbody,
 		TextSize = 13,
-		TextXAlignment = Enum.TextXAlignment.Left
+		TextXAlignment = Enum.TextXAlignment.Left,
+		BorderSizePixel = 0
 	})
 
 	local valuebox = create("TextBox", {
@@ -697,7 +725,8 @@ function tabmt:addslider(text, min, max, default, callback, useside)
 		Font = theme.fontbody,
 		TextSize = 12,
 		Text = tostring(default),
-		ClearTextOnFocus = false
+		ClearTextOnFocus = false,
+		BorderSizePixel = 0
 	})
 	addcorner(valuebox, 5)
 
@@ -705,14 +734,16 @@ function tabmt:addslider(text, min, max, default, callback, useside)
 		Parent = frame,
 		Size = UDim2.new(1, -20, 0, 6),
 		Position = UDim2.new(0, 10, 1, -14),
-		BackgroundColor3 = theme.inputbackground
+		BackgroundColor3 = theme.inputbackground,
+		BorderSizePixel = 0
 	})
 	addcorner(track, 3)
 
 	local fill = create("Frame", {
 		Parent = track,
 		Size = UDim2.new(0, 0, 1, 0),
-		BackgroundColor3 = theme.accentfill
+		BackgroundColor3 = theme.accentfill,
+		BorderSizePixel = 0
 	})
 	addcorner(fill, 3)
 
@@ -721,7 +752,8 @@ function tabmt:addslider(text, min, max, default, callback, useside)
 		Size = UDim2.new(0, 12, 0, 12),
 		Position = UDim2.new(0, -6, 0.5, -6),
 		BackgroundColor3 = theme.textprimary,
-		ZIndex = 5
+		ZIndex = 5,
+		BorderSizePixel = 0
 	})
 	addcorner(knob, 6)
 
@@ -813,7 +845,8 @@ function tabmt:adddropdown(title, options, useside, multiselect)
 		Size = UDim2.new(1, 0, 0, 26),
 		BackgroundTransparency = 1,
 		AutomaticSize = Enum.AutomaticSize.Y,
-		ZIndex = 2
+		ZIndex = 2,
+		BorderSizePixel = 0
 	})
 	create("UIListLayout", {
 		Parent = frame,
@@ -826,7 +859,8 @@ function tabmt:adddropdown(title, options, useside, multiselect)
 		BackgroundColor3 = theme.buttonbackground,
 		Text = "",
 		AutoButtonColor = false,
-		ZIndex = 2
+		ZIndex = 2,
+		BorderSizePixel = 0
 	})
 	addcorner(headerbtn)
 
@@ -840,14 +874,16 @@ function tabmt:adddropdown(title, options, useside, multiselect)
 		Font = theme.fontbody,
 		TextSize = 13,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		ZIndex = 2
+		ZIndex = 2,
+		BorderSizePixel = 0
 	})
 
 	local closebar = create("Frame", {
 		Parent = frame,
 		Size = UDim2.new(1, 0, 0, 20),
 		BackgroundTransparency = 1,
-		ZIndex = 2
+		ZIndex = 2,
+		BorderSizePixel = 0
 	})
 
 	local closebtn = create("TextButton", {
@@ -858,7 +894,8 @@ function tabmt:adddropdown(title, options, useside, multiselect)
 		TextColor3 = theme.textsecondary,
 		Font = theme.fontbody,
 		TextSize = 12,
-		ZIndex = 2
+		ZIndex = 2,
+		BorderSizePixel = 0
 	})
 	addcorner(closebtn, 4)
 
@@ -872,7 +909,8 @@ function tabmt:adddropdown(title, options, useside, multiselect)
 		BackgroundColor3 = theme.inputbackground,
 		ClipsDescendants = true,
 		Visible = true,
-		ZIndex = 2
+		ZIndex = 2,
+		BorderSizePixel = 0
 	})
 	addcorner(list, 6)
 	create("UIListLayout", {
@@ -950,7 +988,8 @@ function tabmt:adddropdown(title, options, useside, multiselect)
 			TextSize = 12,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			ZIndex = isopen and 10 or 2,
-			AutoButtonColor = false
+			AutoButtonColor = false,
+			BorderSizePixel = 0
 		})
 
 		local selected = false
