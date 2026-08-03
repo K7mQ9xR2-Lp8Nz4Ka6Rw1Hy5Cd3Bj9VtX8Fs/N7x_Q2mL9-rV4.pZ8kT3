@@ -4,18 +4,18 @@ local coregui = game:GetService("CoreGui")
 local runservice = game:GetService("RunService")
 
 local theme = {
-	background = Color3.fromRGB(14, 8, 22),
-	headerbackground = Color3.fromRGB(10, 4, 18),
-	sidebarbackground = Color3.fromRGB(8, 2, 16),
-	buttonbackground = Color3.fromRGB(28, 16, 44),
-	inputbackground = Color3.fromRGB(22, 12, 36),
-	accentstroke = Color3.fromRGB(190, 60, 255),
-	accentfill = Color3.fromRGB(190, 60, 255),
-	accentselected = Color3.fromRGB(45, 15, 70),
+	background = Color3.fromRGB(8, 16, 28),
+	headerbackground = Color3.fromRGB(5, 12, 22),
+	sidebarbackground = Color3.fromRGB(4, 10, 18),
+	buttonbackground = Color3.fromRGB(16, 32, 52),
+	inputbackground = Color3.fromRGB(12, 24, 42),
+	accentstroke = Color3.fromRGB(0, 180, 255),
+	accentfill = Color3.fromRGB(0, 180, 255),
+	accentselected = Color3.fromRGB(8, 45, 80),
 	textprimary = Color3.fromRGB(255, 255, 255),
-	textsecondary = Color3.fromRGB(200, 160, 240),
-	textmuted = Color3.fromRGB(235, 210, 255),
-	divider = Color3.fromRGB(40, 25, 60),
+	textsecondary = Color3.fromRGB(150, 200, 240),
+	textmuted = Color3.fromRGB(190, 220, 255),
+	divider = Color3.fromRGB(20, 45, 70),
 	font = Enum.Font.GothamBlack,
 	fontbody = Enum.Font.GothamBold
 }
@@ -26,27 +26,27 @@ local minwidth = 420
 local minheight = 300
 local headerheight = 35
 local footerheight = 50
-local timerheight = 22
-local contentsplit = 0.55
-local openicon = "▾"
-local closeicon = "▸"
+local statusbarheight = 22
+local mainratio = 0.55
+local arrowopen = "▾"
+local arrowclosed = "▸"
 
 local function create(class, props)
-	local instance = Instance.new(class)
-	for key, value in pairs(props or {}) do
-		instance[key] = value
+	local inst = Instance.new(class)
+	for k, v in pairs(props or {}) do
+		inst[k] = v
 	end
-	return instance
+	return inst
 end
 
-local function addcorner(parent, radius)
+local function corner(parent, radius)
 	return create("UICorner", {
 		Parent = parent,
 		CornerRadius = UDim.new(0, radius or smallradius)
 	})
 end
 
-local function addstroke(parent, color, thickness)
+local function stroke(parent, color, thickness)
 	return create("UIStroke", {
 		Parent = parent,
 		Color = color or theme.accentstroke,
@@ -58,9 +58,9 @@ local function formattime(seconds)
 	seconds = math.max(0, math.floor(seconds))
 	local days = math.floor(seconds / 86400)
 	local hours = math.floor((seconds % 86400) / 3600)
-	local minutes = math.floor((seconds % 3600) / 60)
+	local mins = math.floor((seconds % 3600) / 60)
 	local secs = seconds % 60
-	return string.format("%dD / %dH / %dM / %dS", days, hours, minutes, secs)
+	return string.format("%dD / %dH / %dM / %dS", days, hours, mins, secs)
 end
 
 local library = {}
@@ -87,27 +87,29 @@ function library.new(config)
 		Position = UDim2.new(0.05, 0, 0.1, 0),
 		BackgroundColor3 = theme.headerbackground,
 		Text = "",
-		AutoButtonColor = false,
-		BorderSizePixel = 0
+		AutoButtonColor = false
 	})
-	addcorner(togglebtn, 12)
+	corner(togglebtn, 12)
+
 	create("UIGradient", {
 		Parent = togglebtn,
 		Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 200, 255)),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(180, 80, 255))
+			ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(120, 200, 255))
 		}),
 		Rotation = 45
 	})
-	local togglestroke = addstroke(togglebtn)
+
+	local togglestroke = stroke(togglebtn)
 	create("UIGradient", {
 		Parent = togglestroke,
 		Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, Color3.fromRGB(220, 140, 255)),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(120, 40, 180))
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 200, 255)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 100, 180))
 		}),
 		Rotation = 45
 	})
+
 	create("TextLabel", {
 		Parent = togglebtn,
 		Size = UDim2.new(1, 0, 1, 0),
@@ -115,29 +117,28 @@ function library.new(config)
 		Text = config.ToggleLabel or "T",
 		Font = theme.font,
 		TextSize = 26,
-		TextColor3 = theme.textprimary,
-		BorderSizePixel = 0
+		TextColor3 = theme.textprimary
 	})
 
-	local draggingtoggle = false
-	local dragstart
-	local startpos
-	local wasdragged = false
+	local toggledragging = false
+	local toggledragstart
+	local toggledragpos
+	local togglemoved = false
 
 	togglebtn.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1
 			or input.UserInputType == Enum.UserInputType.Touch then
-			draggingtoggle = true
-			wasdragged = false
-			dragstart = input.Position
-			startpos = togglebtn.Position
+			toggledragging = true
+			togglemoved = false
+			toggledragstart = input.Position
+			toggledragpos = togglebtn.Position
 		end
 	end)
 
 	togglebtn.InputEnded:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1
 			or input.UserInputType == Enum.UserInputType.Touch then
-			draggingtoggle = false
+			toggledragging = false
 		end
 	end)
 
@@ -154,18 +155,17 @@ function library.new(config)
 		ClipsDescendants = true,
 		Visible = true
 	})
-	addcorner(panel, cornerradius)
-	addstroke(panel)
+	corner(panel, cornerradius)
+	stroke(panel)
 	self.panel = panel
 
 	local header = create("Frame", {
 		Parent = panel,
 		Size = UDim2.new(1, 0, 0, headerheight),
 		Position = UDim2.new(0, 0, 0, 0),
-		BackgroundColor3 = theme.headerbackground,
-		BorderSizePixel = 0
+		BackgroundColor3 = theme.headerbackground
 	})
-	addcorner(header, cornerradius)
+	corner(header, cornerradius)
 
 	create("TextLabel", {
 		Parent = header,
@@ -176,63 +176,50 @@ function library.new(config)
 		TextColor3 = theme.textprimary,
 		Font = theme.font,
 		TextSize = 14,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		BorderSizePixel = 0
+		TextXAlignment = Enum.TextXAlignment.Left
 	})
 
 	local sidebar = create("Frame", {
 		Parent = panel,
-		Size = UDim2.new(0, 140, 1, -(headerheight + footerheight + timerheight)),
+		Size = UDim2.new(0, 140, 1, -(headerheight + footerheight + statusbarheight)),
 		Position = UDim2.new(0, 0, 0, headerheight),
-		BackgroundColor3 = theme.sidebarbackground,
-		BorderSizePixel = 0
+		BackgroundColor3 = theme.sidebarbackground
 	})
 
 	local indicator = create("Frame", {
 		Parent = sidebar,
 		Size = UDim2.new(0, 4, 0, 32),
 		Position = UDim2.new(0, 5, 0, 10),
-		BackgroundColor3 = theme.accentfill,
-		BorderSizePixel = 0
+		BackgroundColor3 = theme.accentfill
 	})
-	addcorner(indicator, 2)
+	corner(indicator, 2)
 	self.indicator = indicator
 
 	local tablist = create("ScrollingFrame", {
 		Parent = sidebar,
 		Size = UDim2.new(1, -5, 1, 0),
 		BackgroundTransparency = 1,
-		BorderSizePixel = 0,
 		ScrollBarThickness = 0,
-		ScrollBarImageColor3 = theme.accentfill,
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		CanvasSize = UDim2.new(0, 0, 0, 0)
 	})
-	create("UIListLayout", {
-		Parent = tablist,
-		Padding = UDim.new(0, 5)
-	})
-	create("UIPadding", {
-		Parent = tablist,
-		PaddingTop = UDim.new(0, 10)
-	})
+	create("UIListLayout", { Parent = tablist, Padding = UDim.new(0, 5) })
+	create("UIPadding", { Parent = tablist, PaddingTop = UDim.new(0, 10) })
 	self.tablist = tablist
 
 	local content = create("Frame", {
 		Parent = panel,
-		Size = UDim2.new(1, -140, 1, -(headerheight + footerheight + timerheight)),
-		Position = UDim2.new(0, 140, 0, headerheight),
-		BackgroundTransparency = 1,
-		BorderSizePixel = 0
+		Size = UDim2.new(1, -145, 1, -(headerheight + footerheight + statusbarheight)),
+		Position = UDim2.new(0, 145, 0, headerheight),
+		BackgroundTransparency = 1
 	})
 	self.content = content
 
 	local footer = create("Frame", {
 		Parent = panel,
 		Size = UDim2.new(1, 0, 0, footerheight),
-		Position = UDim2.new(0, 0, 1, -(footerheight + timerheight)),
-		BackgroundColor3 = theme.headerbackground,
-		BorderSizePixel = 0
+		Position = UDim2.new(0, 0, 1, -(footerheight + statusbarheight)),
+		BackgroundColor3 = theme.headerbackground
 	})
 
 	local avatar = create("ImageLabel", {
@@ -240,11 +227,10 @@ function library.new(config)
 		Size = UDim2.new(0, 34, 0, 34),
 		Position = UDim2.new(0, 8, 0.5, -17),
 		BackgroundColor3 = theme.inputbackground,
-		Image = config.AvatarImage or "",
-		BorderSizePixel = 0
+		Image = config.AvatarImage or ""
 	})
-	addcorner(avatar, 17)
-	addstroke(avatar, theme.accentstroke, 1)
+	corner(avatar, 17)
+	stroke(avatar, theme.accentstroke, 1)
 
 	create("TextLabel", {
 		Parent = footer,
@@ -255,42 +241,39 @@ function library.new(config)
 		TextColor3 = theme.textprimary,
 		Font = theme.font,
 		TextSize = 13,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		BorderSizePixel = 0
+		TextXAlignment = Enum.TextXAlignment.Left
 	})
 
-	local timerbar = create("Frame", {
+	local statusbar = create("Frame", {
 		Parent = panel,
-		Size = UDim2.new(1, 0, 0, timerheight),
-		Position = UDim2.new(0, 0, 1, -timerheight),
-		BackgroundColor3 = theme.accentselected,
-		BorderSizePixel = 0
+		Size = UDim2.new(1, 0, 0, statusbarheight),
+		Position = UDim2.new(0, 0, 1, -statusbarheight),
+		BackgroundColor3 = theme.accentselected
 	})
-	addcorner(timerbar, cornerradius)
+	corner(statusbar, cornerradius)
 
 	local timerlabel = create("TextLabel", {
-		Parent = timerbar,
+		Parent = statusbar,
 		Size = UDim2.new(1, 0, 1, 0),
 		BackgroundTransparency = 1,
 		Text = "",
 		TextColor3 = theme.textprimary,
 		Font = theme.fontbody,
-		TextSize = 12,
-		BorderSizePixel = 0
+		TextSize = 12
 	})
 	self.timerlabel = timerlabel
 
 	local starttime = os.clock()
-	function self:resettimer()
+	function self:ResetTimer()
 		starttime = os.clock()
 	end
-	timerlabel.Text = formattime(0)
 
-	local accum = 0
+	timerlabel.Text = formattime(0)
+	local accumulator = 0
 	runservice.Heartbeat:Connect(function(dt)
-		accum += dt
-		if accum >= 1 then
-			accum -= 1
+		accumulator += dt
+		if accumulator >= 1 then
+			accumulator -= 1
 			timerlabel.Text = formattime(os.clock() - starttime)
 		end
 	end)
@@ -302,50 +285,45 @@ function library.new(config)
 		BackgroundTransparency = 1,
 		AutoButtonColor = false,
 		Text = "",
-		ZIndex = 10,
-		BorderSizePixel = 0
+		ZIndex = 10
 	})
 
-	local isopen = true
+	local open = true
 	togglebtn.MouseButton1Click:Connect(function()
-		if wasdragged then
-			return
-		end
-		isopen = not isopen
-		panel.Visible = isopen
+		if togglemoved then return end
+		open = not open
+		panel.Visible = open
 	end)
 
-	self.open = function()
-		isopen = true
+	self.Open = function()
+		open = true
 		panel.Visible = true
 	end
-
-	self.close = function()
-		isopen = false
+	self.Close = function()
+		open = false
 		panel.Visible = false
 	end
 
-	local draggingpanel = false
-	local paneldragstart
-	local panelstartpos
-
+	local dragging = false
+	local dragstart
+	local dragpos
 	local resizing = false
 	local resizestart
-	local resizestartsize
+	local resizesize
 
 	local function ondragstart(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1
 			or input.UserInputType == Enum.UserInputType.Touch then
-			draggingpanel = true
-			paneldragstart = input.Position
-			panelstartpos = panel.Position
+			dragging = true
+			dragstart = input.Position
+			dragpos = panel.Position
 		end
 	end
 
 	local function ondragend(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1
 			or input.UserInputType == Enum.UserInputType.Touch then
-			draggingpanel = false
+			dragging = false
 		end
 	end
 
@@ -359,15 +337,15 @@ function library.new(config)
 	content.InputEnded:Connect(ondragend)
 	footer.InputBegan:Connect(ondragstart)
 	footer.InputEnded:Connect(ondragend)
-	timerbar.InputBegan:Connect(ondragstart)
-	timerbar.InputEnded:Connect(ondragend)
+	statusbar.InputBegan:Connect(ondragstart)
+	statusbar.InputEnded:Connect(ondragend)
 
 	resizehandle.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1
 			or input.UserInputType == Enum.UserInputType.Touch then
 			resizing = true
 			resizestart = input.Position
-			resizestartsize = panel.Size
+			resizesize = panel.Size
 		end
 	end)
 
@@ -384,67 +362,66 @@ function library.new(config)
 			return
 		end
 
-		if draggingpanel then
-			local delta = input.Position - paneldragstart
+		if dragging then
+			local delta = input.Position - dragstart
 			panel.Position = UDim2.new(
-				panelstartpos.X.Scale, panelstartpos.X.Offset + delta.X,
-				panelstartpos.Y.Scale, panelstartpos.Y.Offset + delta.Y
+				dragpos.X.Scale, dragpos.X.Offset + delta.X,
+				dragpos.Y.Scale, dragpos.Y.Offset + delta.Y
 			)
 		elseif resizing then
 			local delta = input.Position - resizestart
-			local newwidth = math.max(minwidth, resizestartsize.X.Offset + delta.X)
-			local newheight = math.max(minheight, resizestartsize.Y.Offset + delta.Y)
-			panel.Size = UDim2.new(resizestartsize.X.Scale, newwidth, resizestartsize.Y.Scale, newheight)
-		elseif draggingtoggle then
-			local delta = input.Position - dragstart
+			local neww = math.max(minwidth, resizesize.X.Offset + delta.X)
+			local newh = math.max(minheight, resizesize.Y.Offset + delta.Y)
+			panel.Size = UDim2.new(resizesize.X.Scale, neww, resizesize.Y.Scale, newh)
+		elseif toggledragging then
+			local delta = input.Position - toggledragstart
 			if math.abs(delta.X) > 3 or math.abs(delta.Y) > 3 then
-				wasdragged = true
+				togglemoved = true
 			end
 			togglebtn.Position = UDim2.new(
-				startpos.X.Scale, startpos.X.Offset + delta.X,
-				startpos.Y.Scale, startpos.Y.Offset + delta.Y
+				toggledragpos.X.Scale, toggledragpos.X.Offset + delta.X,
+				toggledragpos.Y.Scale, toggledragpos.Y.Offset + delta.Y
 			)
 		end
 	end)
 
-	self.ondragstart = ondragstart
-	self.ondragend = ondragend
+	self._ondragstart = ondragstart
+	self._ondragend = ondragend
 
 	return self
 end
 
-local tabmt = {}
-tabmt.__index = tabmt
+local tabpage = {}
+tabpage.__index = tabpage
 
-function library:addtab(name)
+function library:AddTab(name)
 	local index = #self.tabs + 1
 
-	local button = create("TextButton", {
+	local btn = create("TextButton", {
 		Parent = self.tablist,
 		Size = UDim2.new(1, -15, 0, 32),
 		BackgroundColor3 = theme.buttonbackground,
 		BackgroundTransparency = 1,
-		Text = "   " .. name,
+		Text = " " .. name,
 		TextColor3 = theme.textsecondary,
 		Font = theme.font,
 		TextSize = 13,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		BorderSizePixel = 0
+		TextXAlignment = Enum.TextXAlignment.Left
 	})
-	addcorner(button)
+	corner(btn)
 
-	button.MouseEnter:Connect(function()
-		if button.BackgroundTransparency == 1 then
-			tweenservice:Create(button, TweenInfo.new(0.15), {
+	btn.MouseEnter:Connect(function()
+		if btn.BackgroundTransparency == 1 then
+			tweenservice:Create(btn, TweenInfo.new(0.15), {
 				BackgroundTransparency = 0,
-				BackgroundColor3 = Color3.fromRGB(30, 15, 50)
+				BackgroundColor3 = Color3.fromRGB(15, 40, 65)
 			}):Play()
 		end
 	end)
 
-	button.MouseLeave:Connect(function()
-		if button.TextColor3 ~= theme.textprimary then
-			tweenservice:Create(button, TweenInfo.new(0.15), {
+	btn.MouseLeave:Connect(function()
+		if btn.TextColor3 ~= theme.textprimary then
+			tweenservice:Create(btn, TweenInfo.new(0.15), {
 				BackgroundTransparency = 1
 			}):Play()
 		end
@@ -454,47 +431,44 @@ function library:addtab(name)
 		Parent = self.content,
 		Size = UDim2.new(1, 0, 1, 0),
 		BackgroundTransparency = 1,
-		Visible = index == 1,
-		BorderSizePixel = 0
+		Visible = index == 1
 	})
 
 	local main = create("ScrollingFrame", {
 		Parent = page,
-		Size = UDim2.new(contentsplit, 0, 1, 0),
+		Size = UDim2.new(mainratio, -4, 1, 0),
 		Position = UDim2.new(0, 0, 0, 0),
 		BackgroundTransparency = 1,
-		BorderSizePixel = 0,
-		ScrollBarThickness = 0,
-		ScrollBarImageColor3 = theme.accentfill,
+		ScrollBarThickness = 4,
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		CanvasSize = UDim2.new(0, 0, 0, 0)
 	})
-	create("UIListLayout", {
-		Parent = main,
-		Padding = UDim.new(0, 8)
-	})
+	create("UIListLayout", { Parent = main, Padding = UDim.new(0, 8) })
 	create("UIPadding", {
 		Parent = main,
 		PaddingTop = UDim.new(0, 8),
 		PaddingLeft = UDim.new(0, 8),
 		PaddingRight = UDim.new(0, 8)
+	})
+
+	create("Frame", {
+		Parent = page,
+		Size = UDim2.new(0, 1, 1, -12),
+		Position = UDim2.new(mainratio, 0, 0, 6),
+		BackgroundColor3 = theme.divider,
+		BorderSizePixel = 0
 	})
 
 	local side = create("ScrollingFrame", {
 		Parent = page,
-		Size = UDim2.new(1 - contentsplit, 0, 1, 0),
-		Position = UDim2.new(contentsplit, 0, 0, 0),
+		Size = UDim2.new(1 - mainratio, -4, 1, 0),
+		Position = UDim2.new(mainratio, 4, 0, 0),
 		BackgroundTransparency = 1,
-		BorderSizePixel = 0,
-		ScrollBarThickness = 0,
-		ScrollBarImageColor3 = theme.accentfill,
+		ScrollBarThickness = 4,
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		CanvasSize = UDim2.new(0, 0, 0, 0)
 	})
-	create("UIListLayout", {
-		Parent = side,
-		Padding = UDim.new(0, 8)
-	})
+	create("UIListLayout", { Parent = side, Padding = UDim.new(0, 8) })
 	create("UIPadding", {
 		Parent = side,
 		PaddingTop = UDim.new(0, 8),
@@ -502,23 +476,20 @@ function library:addtab(name)
 		PaddingRight = UDim.new(0, 8)
 	})
 
-	if self.ondragstart and self.ondragend then
-		main.InputBegan:Connect(self.ondragstart)
-		main.InputEnded:Connect(self.ondragend)
-		side.InputBegan:Connect(self.ondragstart)
-		side.InputEnded:Connect(self.ondragend)
-		page.InputBegan:Connect(self.ondragstart)
-		page.InputEnded:Connect(self.ondragend)
+	if self._ondragstart and self._ondragend then
+		main.InputBegan:Connect(self._ondragstart)
+		main.InputEnded:Connect(self._ondragend)
+		side.InputBegan:Connect(self._ondragstart)
+		side.InputEnded:Connect(self._ondragend)
+		page.InputBegan:Connect(self._ondragstart)
+		page.InputEnded:Connect(self._ondragend)
 	end
 
-	table.insert(self.tabs, {
-		button = button,
-		page = page
-	})
+	table.insert(self.tabs, { Button = btn, Page = page })
 	table.insert(self.taboffsets, 10 + (index - 1) * 37)
 
-	button.MouseButton1Click:Connect(function()
-		self:selecttab(index)
+	btn.MouseButton1Click:Connect(function()
+		self:SelectTab(index)
 	end)
 
 	return setmetatable({
@@ -526,21 +497,21 @@ function library:addtab(name)
 		main = main,
 		side = side,
 		library = self
-	}, tabmt)
+	}, tabpage)
 end
 
-function library:selecttab(index)
+function library:SelectTab(index)
 	self.selectedindex = index
 	for i, tab in ipairs(self.tabs) do
-		tab.page.Visible = (i == index)
+		tab.Page.Visible = (i == index)
 		if i == index then
-			tweenservice:Create(tab.button, TweenInfo.new(0.15), {
+			tweenservice:Create(tab.Button, TweenInfo.new(0.15), {
 				BackgroundTransparency = 0,
 				BackgroundColor3 = theme.accentselected,
 				TextColor3 = theme.textprimary
 			}):Play()
 		else
-			tweenservice:Create(tab.button, TweenInfo.new(0.15), {
+			tweenservice:Create(tab.Button, TweenInfo.new(0.15), {
 				BackgroundTransparency = 1,
 				TextColor3 = theme.textsecondary
 			}):Play()
@@ -551,7 +522,7 @@ function library:selecttab(index)
 	}):Play()
 end
 
-function tabmt:addsectionlabel(text, useside)
+function tabpage:AddSectionLabel(text, useside)
 	local parent = useside and self.side or self.main
 	return create("TextLabel", {
 		Parent = parent,
@@ -561,94 +532,71 @@ function tabmt:addsectionlabel(text, useside)
 		TextColor3 = theme.accentfill,
 		Font = theme.fontbody,
 		TextSize = 13,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		BorderSizePixel = 0
+		TextXAlignment = Enum.TextXAlignment.Left
 	})
 end
 
-function tabmt:addbutton(text, callback, useside)
+function tabpage:AddButton(text, callback, useside)
 	local parent = useside and self.side or self.main
-	local button = create("TextButton", {
+	local btn = create("TextButton", {
 		Parent = parent,
 		Size = UDim2.new(1, 0, 0, 36),
 		BackgroundColor3 = theme.buttonbackground,
-		Text = "   " .. text,
+		Text = " " .. text,
 		TextColor3 = theme.textmuted,
 		Font = theme.fontbody,
 		TextSize = 13,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		BorderSizePixel = 0
+		TextXAlignment = Enum.TextXAlignment.Left
 	})
-	addcorner(button)
-	addstroke(button, Color3.fromRGB(60, 30, 90), 1)
+	corner(btn)
+	stroke(btn, Color3.fromRGB(30, 70, 110), 1)
 
-	button.Activated:Connect(function()
-		if callback then
-			callback()
-		end
+	btn.Activated:Connect(function()
+		if callback then callback() end
 	end)
-
-	return button
+	return btn
 end
 
-function tabmt:addtoggle(text, callback, useside)
+function tabpage:AddToggle(text, callback, useside)
 	local parent = useside and self.side or self.main
-	local button = create("TextButton", {
+	local btn = create("TextButton", {
 		Parent = parent,
 		Size = UDim2.new(1, 0, 0, 36),
 		BackgroundColor3 = theme.buttonbackground,
-		Text = "   " .. text,
+		Text = " " .. text,
 		TextColor3 = theme.textmuted,
 		Font = theme.fontbody,
 		TextSize = 13,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		BorderSizePixel = 0
+		TextXAlignment = Enum.TextXAlignment.Left
 	})
-	addcorner(button)
+	corner(btn)
 
 	local box = create("Frame", {
-		Parent = button,
+		Parent = btn,
 		Size = UDim2.new(0, 16, 0, 16),
 		Position = UDim2.new(1, -28, 0.5, -8),
-		BackgroundColor3 = theme.inputbackground,
-		BorderSizePixel = 0
+		BackgroundColor3 = theme.inputbackground
 	})
-	addcorner(box, 4)
+	corner(box, 4)
 
-	local check = create("TextLabel", {
-		Parent = box,
-		Size = UDim2.new(1, 0, 1, 0),
-		BackgroundTransparency = 1,
-		Text = "",
-		TextColor3 = theme.textprimary,
-		Font = theme.font,
-		TextSize = 12,
-		BorderSizePixel = 0
-	})
-
-	local enabled = false
-	button.Activated:Connect(function()
-		enabled = not enabled
-		check.Text = ""
-		box.BackgroundColor3 = enabled and theme.accentfill or theme.inputbackground
-		if callback then
-			callback(enabled)
-		end
+	local state = false
+	btn.Activated:Connect(function()
+		state = not state
+		box.BackgroundColor3 = state and theme.accentfill or theme.inputbackground
+		if callback then callback(state) end
 	end)
-
-	return button
+	return btn
 end
 
-function tabmt:addtextbox(label, placeholder, callback, useside)
+function tabpage:AddTextbox(label, placeholder, callback, useside)
 	local parent = useside and self.side or self.main
 	local frame = create("Frame", {
 		Parent = parent,
 		Size = UDim2.new(1, 0, 0, 36),
-		BackgroundColor3 = theme.buttonbackground,
-		BorderSizePixel = 0
+		BackgroundColor3 = theme.buttonbackground
 	})
-	addcorner(frame)
-	addstroke(frame, Color3.fromRGB(60, 30, 90), 1)
+	corner(frame)
+	stroke(frame, Color3.fromRGB(30, 70, 110), 1)
 
 	create("TextLabel", {
 		Parent = frame,
@@ -659,8 +607,7 @@ function tabmt:addtextbox(label, placeholder, callback, useside)
 		TextColor3 = theme.textmuted,
 		Font = theme.fontbody,
 		TextSize = 13,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		BorderSizePixel = 0
+		TextXAlignment = Enum.TextXAlignment.Left
 	})
 
 	local box = create("TextBox", {
@@ -674,21 +621,17 @@ function tabmt:addtextbox(label, placeholder, callback, useside)
 		Font = theme.fontbody,
 		TextSize = 12,
 		Text = "",
-		ClearTextOnFocus = false,
-		BorderSizePixel = 0
+		ClearTextOnFocus = false
 	})
-	addcorner(box, 5)
+	corner(box, 5)
 
 	box.FocusLost:Connect(function(enter)
-		if callback then
-			callback(box.Text, enter)
-		end
+		if callback then callback(box.Text, enter) end
 	end)
-
 	return box
 end
 
-function tabmt:addslider(text, min, max, default, callback, useside)
+function tabpage:AddSlider(label, min, max, default, callback, useside)
 	local parent = useside and self.side or self.main
 	min = min or 0
 	max = max or 100
@@ -697,23 +640,21 @@ function tabmt:addslider(text, min, max, default, callback, useside)
 	local frame = create("Frame", {
 		Parent = parent,
 		Size = UDim2.new(1, 0, 0, 52),
-		BackgroundColor3 = theme.buttonbackground,
-		BorderSizePixel = 0
+		BackgroundColor3 = theme.buttonbackground
 	})
-	addcorner(frame)
-	addstroke(frame, Color3.fromRGB(60, 30, 90), 1)
+	corner(frame)
+	stroke(frame, Color3.fromRGB(30, 70, 110), 1)
 
 	create("TextLabel", {
 		Parent = frame,
 		Size = UDim2.new(1, -70, 0, 20),
 		Position = UDim2.new(0, 10, 0, 4),
 		BackgroundTransparency = 1,
-		Text = text,
+		Text = label,
 		TextColor3 = theme.textmuted,
 		Font = theme.fontbody,
 		TextSize = 13,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		BorderSizePixel = 0
+		TextXAlignment = Enum.TextXAlignment.Left
 	})
 
 	local valuebox = create("TextBox", {
@@ -725,61 +666,52 @@ function tabmt:addslider(text, min, max, default, callback, useside)
 		Font = theme.fontbody,
 		TextSize = 12,
 		Text = tostring(default),
-		ClearTextOnFocus = false,
-		BorderSizePixel = 0
+		ClearTextOnFocus = false
 	})
-	addcorner(valuebox, 5)
+	corner(valuebox, 5)
 
 	local track = create("Frame", {
 		Parent = frame,
 		Size = UDim2.new(1, -20, 0, 6),
 		Position = UDim2.new(0, 10, 1, -14),
-		BackgroundColor3 = theme.inputbackground,
-		BorderSizePixel = 0
+		BackgroundColor3 = theme.inputbackground
 	})
-	addcorner(track, 3)
+	corner(track, 3)
 
 	local fill = create("Frame", {
 		Parent = track,
 		Size = UDim2.new(0, 0, 1, 0),
-		BackgroundColor3 = theme.accentfill,
-		BorderSizePixel = 0
+		BackgroundColor3 = theme.accentfill
 	})
-	addcorner(fill, 3)
+	corner(fill, 3)
 
 	local knob = create("Frame", {
 		Parent = track,
 		Size = UDim2.new(0, 12, 0, 12),
 		Position = UDim2.new(0, -6, 0.5, -6),
 		BackgroundColor3 = theme.textprimary,
-		ZIndex = 5,
-		BorderSizePixel = 0
+		ZIndex = 5
 	})
-	addcorner(knob, 6)
+	corner(knob, 6)
 
 	local value = default
-
-	local function setvalue(newvalue, skiptext)
-		newvalue = math.clamp(newvalue, min, max)
-		value = newvalue
-		local percent = (max - min) == 0 and 0 or (newvalue - min) / (max - min)
-		fill.Size = UDim2.new(percent, 0, 1, 0)
-		knob.Position = UDim2.new(percent, -6, 0.5, -6)
+	local function set(v, skiptext)
+		v = math.clamp(v, min, max)
+		value = v
+		local ratio = (max - min) == 0 and 0 or (v - min) / (max - min)
+		fill.Size = UDim2.new(ratio, 0, 1, 0)
+		knob.Position = UDim2.new(ratio, -6, 0.5, -6)
 		if not skiptext then
-			valuebox.Text = tostring(math.floor(newvalue * 100) / 100)
+			valuebox.Text = tostring(math.floor(v * 100) / 100)
 		end
-		if callback then
-			callback(newvalue)
-		end
+		if callback then callback(v) end
 	end
-
-	setvalue(default)
+	set(default)
 
 	local sliding = false
-
 	local function updateslider(x)
-		local percent = (x - track.AbsolutePosition.X) / track.AbsoluteSize.X
-		setvalue(min + percent * (max - min))
+		local ratio = (x - track.AbsolutePosition.X) / track.AbsoluteSize.X
+		set(min + ratio * (max - min))
 	end
 
 	track.InputBegan:Connect(function(input)
@@ -812,9 +744,9 @@ function tabmt:addslider(text, min, max, default, callback, useside)
 	end)
 
 	valuebox.FocusLost:Connect(function()
-		local num = tonumber(valuebox.Text)
-		if num then
-			setvalue(num, true)
+		local n = tonumber(valuebox.Text)
+		if n then
+			set(n, true)
 			valuebox.Text = tostring(value)
 		else
 			valuebox.Text = tostring(value)
@@ -822,17 +754,13 @@ function tabmt:addslider(text, min, max, default, callback, useside)
 	end)
 
 	return {
-		set = setvalue,
-		get = function()
-			return value
-		end
+		Set = set,
+		Get = function() return value end
 	}
 end
 
-function tabmt:adddropdown(title, options, useside, multiselect)
-	if useside == nil then
-		useside = true
-	end
+function tabpage:AddDropdown(label, options, useside, multiselect)
+	if useside == nil then useside = true end
 	local parent = useside and self.side or self.main
 	local lib = self.library
 
@@ -840,83 +768,70 @@ function tabmt:adddropdown(title, options, useside, multiselect)
 	local optionpadding = 2
 	local maxheight = 150
 
-	local frame = create("Frame", {
+	local container = create("Frame", {
 		Parent = parent,
 		Size = UDim2.new(1, 0, 0, 26),
 		BackgroundTransparency = 1,
 		AutomaticSize = Enum.AutomaticSize.Y,
-		ZIndex = 2,
-		BorderSizePixel = 0
+		ZIndex = 2
 	})
-	create("UIListLayout", {
-		Parent = frame,
-		Padding = UDim.new(0, 4)
-	})
+	create("UIListLayout", { Parent = container, Padding = UDim.new(0, 4) })
 
-	local headerbtn = create("TextButton", {
-		Parent = frame,
+	local header = create("TextButton", {
+		Parent = container,
 		Size = UDim2.new(1, 0, 0, 26),
 		BackgroundColor3 = theme.buttonbackground,
 		Text = "",
 		AutoButtonColor = false,
-		ZIndex = 2,
-		BorderSizePixel = 0
+		ZIndex = 2
 	})
-	addcorner(headerbtn)
+	corner(header)
 
 	local headerlabel = create("TextLabel", {
-		Parent = headerbtn,
+		Parent = header,
 		Size = UDim2.new(1, -10, 1, 0),
 		Position = UDim2.new(0, 10, 0, 0),
 		BackgroundTransparency = 1,
-		Text = title .. "  " .. openicon,
+		Text = label .. " " .. arrowopen,
 		TextColor3 = theme.accentfill,
 		Font = theme.fontbody,
 		TextSize = 13,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		ZIndex = 2,
-		BorderSizePixel = 0
+		ZIndex = 2
 	})
 
 	local closebar = create("Frame", {
-		Parent = frame,
+		Parent = container,
 		Size = UDim2.new(1, 0, 0, 20),
 		BackgroundTransparency = 1,
-		ZIndex = 2,
-		BorderSizePixel = 0
+		ZIndex = 2
 	})
 
 	local closebtn = create("TextButton", {
 		Parent = closebar,
 		Size = UDim2.new(1, 0, 1, 0),
 		BackgroundColor3 = theme.inputbackground,
-		Text = "Close  ×",
+		Text = "Close ×",
 		TextColor3 = theme.textsecondary,
 		Font = theme.fontbody,
 		TextSize = 12,
-		ZIndex = 2,
-		BorderSizePixel = 0
+		ZIndex = 2
 	})
-	addcorner(closebtn, 4)
+	corner(closebtn, 4)
 
 	local list = create("ScrollingFrame", {
-		Parent = frame,
+		Parent = container,
 		Size = UDim2.new(1, 0, 0, 0),
 		CanvasSize = UDim2.new(0, 0, 0, 0),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
-		ScrollBarThickness = 0,
-		ScrollBarImageColor3 = theme.accentfill,
+		ScrollBarThickness = 4,
 		BackgroundColor3 = theme.inputbackground,
 		ClipsDescendants = true,
 		Visible = true,
-		ZIndex = 2,
-		BorderSizePixel = 0
+		ZIndex = 2
 	})
-	addcorner(list, 6)
-	create("UIListLayout", {
-		Parent = list,
-		Padding = UDim.new(0, optionpadding)
-	})
+	corner(list, 6)
+	create("UIListLayout", { Parent = list, Padding = UDim.new(0, optionpadding) })
 	create("UIPadding", {
 		Parent = list,
 		PaddingTop = UDim.new(0, 4),
@@ -926,17 +841,17 @@ function tabmt:adddropdown(title, options, useside, multiselect)
 	})
 
 	local dropdown = {
-		frame = frame,
+		frame = container,
 		content = list,
 		multiselect = multiselect and true or false,
 		selected = {},
-		options = {}
+		_options = {}
 	}
 
-	local isopen = true
+	local expanded = true
 
-	local function updateheight()
-		local count = #dropdown.options
+	local function resize()
+		local count = #dropdown._options
 		local h = 0
 		if count > 0 then
 			h = math.min(count * optionheight + (count - 1) * optionpadding + 8, maxheight)
@@ -944,9 +859,9 @@ function tabmt:adddropdown(title, options, useside, multiselect)
 		list.Size = UDim2.new(1, 0, 0, h)
 	end
 
-	local function setzindex(z)
-		frame.ZIndex = z
-		headerbtn.ZIndex = z
+	local function setz(z)
+		container.ZIndex = z
+		header.ZIndex = z
 		headerlabel.ZIndex = z
 		closebar.ZIndex = z
 		closebtn.ZIndex = z
@@ -958,53 +873,52 @@ function tabmt:adddropdown(title, options, useside, multiselect)
 		end
 	end
 
-	function dropdown:setopen(state)
-		isopen = state
+	function dropdown:SetOpen(state)
+		expanded = state
 		list.Visible = state
 		closebar.Visible = state
-		headerlabel.Text = title .. "  " .. (state and openicon or closeicon)
-		setzindex(state and 10 or 2)
+		headerlabel.Text = label .. " " .. (state and arrowopen or arrowclosed)
+		setz(state and 10 or 2)
 		if state and lib then
 			for _, other in ipairs(lib.dropdowns) do
-				if other ~= dropdown and other.isexpanded and other:isexpanded() then
-					other:setopen(false)
+				if other ~= dropdown and other._IsExpanded and other._IsExpanded() then
+					other:SetOpen(false)
 				end
 			end
 		end
 	end
 
-	function dropdown:isexpanded()
-		return isopen
+	dropdown._IsExpanded = function()
+		return expanded
 	end
 
-	function dropdown:addoption(text, callback)
-		local btn = create("TextButton", {
+	function dropdown:AddOption(text, callback)
+		local opt = create("TextButton", {
 			Parent = list,
 			Size = UDim2.new(1, 0, 0, optionheight),
 			BackgroundTransparency = 1,
-			Text = "  " .. text,
-			TextColor3 = Color3.fromRGB(220, 190, 255),
+			Text = " " .. text,
+			TextColor3 = Color3.fromRGB(170, 210, 245),
 			Font = Enum.Font.PermanentMarker,
 			TextSize = 12,
 			TextXAlignment = Enum.TextXAlignment.Left,
-			ZIndex = isopen and 10 or 2,
-			AutoButtonColor = false,
-			BorderSizePixel = 0
+			ZIndex = expanded and 10 or 2,
+			AutoButtonColor = false
 		})
 
 		local selected = false
-		local option
+		local entry
 
 		local function refresh()
 			if selected then
-				btn.BackgroundTransparency = 0
-				btn.BackgroundColor3 = theme.accentselected
-				btn.TextColor3 = theme.textprimary
-				btn.Text = (dropdown.multiselect and "✓ " or "  ") .. text
+				opt.BackgroundTransparency = 0
+				opt.BackgroundColor3 = theme.accentselected
+				opt.TextColor3 = theme.textprimary
+				opt.Text = (dropdown.multiselect and "✓ " or " ") .. text
 			else
-				btn.BackgroundTransparency = 1
-				btn.TextColor3 = Color3.fromRGB(220, 190, 255)
-				btn.Text = "  " .. text
+				opt.BackgroundTransparency = 1
+				opt.TextColor3 = Color3.fromRGB(170, 210, 245)
+				opt.Text = " " .. text
 			end
 		end
 
@@ -1014,95 +928,85 @@ function tabmt:adddropdown(title, options, useside, multiselect)
 			dropdown.selected[text] = state or nil
 		end
 
-		btn.MouseEnter:Connect(function()
+		opt.MouseEnter:Connect(function()
 			if not selected then
-				btn.BackgroundTransparency = 0
-				btn.BackgroundColor3 = Color3.fromRGB(30, 15, 50)
+				opt.BackgroundTransparency = 0
+				opt.BackgroundColor3 = Color3.fromRGB(15, 40, 65)
 			end
 		end)
 
-		btn.MouseLeave:Connect(function()
+		opt.MouseLeave:Connect(function()
 			if not selected then
-				btn.BackgroundTransparency = 1
+				opt.BackgroundTransparency = 1
 			end
 		end)
 
-		btn.Activated:Connect(function()
+		opt.Activated:Connect(function()
 			if dropdown.multiselect then
 				setselected(not selected)
-				if callback then
-					callback(selected)
-				end
+				if callback then callback(selected) end
 			else
-				for _, opt in ipairs(dropdown.options) do
-					if opt ~= option then
-						opt.setselected(false)
+				for _, other in ipairs(dropdown._options) do
+					if other ~= entry then
+						other.SetSelected(false)
 					end
 				end
 				setselected(true)
-				if callback then
-					callback()
-				end
+				if callback then callback() end
 			end
 		end)
 
-		option = {
-			button = btn,
-			text = text,
-			setselected = setselected
-		}
-		table.insert(dropdown.options, option)
-		updateheight()
-		return btn
+		entry = { Button = opt, Text = text, SetSelected = setselected }
+		table.insert(dropdown._options, entry)
+		resize()
+		return opt
 	end
 
-	function dropdown:removeoption(btn)
-		if not btn then
-			return
-		end
-		for i, opt in ipairs(dropdown.options) do
-			if opt.button == btn then
-				dropdown.selected[opt.text] = nil
-				table.remove(dropdown.options, i)
+	function dropdown:RemoveOption(btn)
+		if not btn then return end
+		for i, entry in ipairs(dropdown._options) do
+			if entry.Button == btn then
+				dropdown.selected[entry.Text] = nil
+				table.remove(dropdown._options, i)
 				break
 			end
 		end
 		btn:Destroy()
-		updateheight()
+		resize()
 	end
 
-	function dropdown:clear()
+	function dropdown:Clear()
 		for _, child in ipairs(list:GetChildren()) do
 			if child:IsA("TextButton") then
 				child:Destroy()
 			end
 		end
-		dropdown.options = {}
+		dropdown._options = {}
 		dropdown.selected = {}
-		updateheight()
+		resize()
 	end
 
-	function dropdown:getselected()
+	function dropdown:GetSelected()
 		local result = {}
-		for _, opt in ipairs(dropdown.options) do
-			if dropdown.selected[opt.text] then
-				table.insert(result, opt.text)
+		for _, entry in ipairs(dropdown._options) do
+			if dropdown.selected[entry.Text] then
+				table.insert(result, entry.Text)
 			end
 		end
 		return result
 	end
 
-	headerbtn.Activated:Connect(function()
-		dropdown:setopen(not isopen)
+	header.Activated:Connect(function()
+		dropdown:SetOpen(not expanded)
 	end)
 
 	closebtn.Activated:Connect(function()
-		dropdown:setopen(false)
+		dropdown:SetOpen(false)
 	end)
 
 	if options then
 		for _, opt in ipairs(options) do
-			dropdown:addoption(opt.Text, opt.Callback)
+			dropdown:AddOption(opt.Text, opt.Callback)
 		end
 	end
 
@@ -1110,7 +1014,7 @@ function tabmt:adddropdown(title, options, useside, multiselect)
 		table.insert(lib.dropdowns, dropdown)
 	end
 
-	dropdown:setopen(true)
+	dropdown:SetOpen(true)
 	return dropdown
 end
 
