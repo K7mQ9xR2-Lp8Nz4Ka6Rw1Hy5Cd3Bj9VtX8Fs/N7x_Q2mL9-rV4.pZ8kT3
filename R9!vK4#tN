@@ -109,7 +109,6 @@ function library.new(config)
 		}),
 		Rotation = 45
 	})
-
 	create("TextLabel", {
 		Parent = togglebtn,
 		Size = UDim2.new(1, 0, 1, 0),
@@ -117,9 +116,9 @@ function library.new(config)
 		Text = config.ToggleLabel or "T",
 		Font = theme.font,
 		TextSize = 26,
-		TextColor3 = theme.textprimary
+		TextColor3 = theme.textprimary,
+		theme.textprimary = Color3.fromRGB(170, 85, 255)
 	})
-
 	local toggledragging = false
 	local toggledragstart
 	local toggledragpos
