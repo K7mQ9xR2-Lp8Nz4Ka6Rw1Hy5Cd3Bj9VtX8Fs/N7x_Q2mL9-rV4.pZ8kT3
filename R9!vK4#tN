@@ -4,18 +4,18 @@ local coregui = game:GetService("CoreGui")
 local runservice = game:GetService("RunService")
 
 local theme = {
-	background = Color3.fromRGB(8, 16, 28),
-	headerbackground = Color3.fromRGB(5, 12, 22),
-	sidebarbackground = Color3.fromRGB(4, 10, 18),
-	buttonbackground = Color3.fromRGB(16, 32, 52),
-	inputbackground = Color3.fromRGB(12, 24, 42),
-	accentstroke = Color3.fromRGB(0, 180, 255),
-	accentfill = Color3.fromRGB(0, 180, 255),
-	accentselected = Color3.fromRGB(8, 45, 80),
+	background = Color3.fromRGB(14, 8, 22),
+	headerbackground = Color3.fromRGB(10, 4, 18),
+	sidebarbackground = Color3.fromRGB(8, 2, 16),
+	buttonbackground = Color3.fromRGB(28, 16, 44),
+	inputbackground = Color3.fromRGB(22, 12, 36),
+	accentstroke = Color3.fromRGB(190, 60, 255),
+	accentfill = Color3.fromRGB(190, 60, 255),
+	accentselected = Color3.fromRGB(45, 15, 70),
 	textprimary = Color3.fromRGB(255, 255, 255),
-	textsecondary = Color3.fromRGB(150, 200, 240),
-	textmuted = Color3.fromRGB(190, 220, 255),
-	divider = Color3.fromRGB(20, 45, 70),
+	textsecondary = Color3.fromRGB(200, 160, 240),
+	textmuted = Color3.fromRGB(235, 210, 255),
+	divider = Color3.fromRGB(40, 25, 60),
 	font = Enum.Font.GothamBlack,
 	fontbody = Enum.Font.GothamBold
 }
@@ -95,7 +95,7 @@ function library.new(config)
 		Parent = togglebtn,
 		Color = ColorSequence.new({
 			ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(120, 200, 255))
+			ColorSequenceKeypoint.new(1, Color3.new(0.75, 0.87, 0.93))
 		}),
 		Rotation = 45
 	})
@@ -104,8 +104,8 @@ function library.new(config)
 	create("UIGradient", {
 		Parent = togglestroke,
 		Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 200, 255)),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 100, 180))
+			ColorSequenceKeypoint.new(0, Color3.new(0.7, 0.9, 1)),
+			ColorSequenceKeypoint.new(1, Color3.new(0.2, 0.5, 0.65))
 		}),
 		Rotation = 45
 	})
@@ -414,7 +414,7 @@ function library:AddTab(name)
 		if btn.BackgroundTransparency == 1 then
 			tweenservice:Create(btn, TweenInfo.new(0.15), {
 				BackgroundTransparency = 0,
-				BackgroundColor3 = Color3.fromRGB(15, 40, 65)
+				BackgroundColor3 = Color3.fromRGB(20, 32, 44)
 			}):Play()
 		end
 	end)
@@ -549,7 +549,7 @@ function tabpage:AddButton(text, callback, useside)
 		TextXAlignment = Enum.TextXAlignment.Left
 	})
 	corner(btn)
-	stroke(btn, Color3.fromRGB(30, 70, 110), 1)
+	stroke(btn, Color3.fromRGB(45, 62, 76), 1)
 
 	btn.Activated:Connect(function()
 		if callback then callback() end
@@ -596,7 +596,7 @@ function tabpage:AddTextbox(label, placeholder, callback, useside)
 		BackgroundColor3 = theme.buttonbackground
 	})
 	corner(frame)
-	stroke(frame, Color3.fromRGB(30, 70, 110), 1)
+	stroke(frame, Color3.fromRGB(45, 62, 76), 1)
 
 	create("TextLabel", {
 		Parent = frame,
@@ -643,7 +643,7 @@ function tabpage:AddSlider(label, min, max, default, callback, useside)
 		BackgroundColor3 = theme.buttonbackground
 	})
 	corner(frame)
-	stroke(frame, Color3.fromRGB(30, 70, 110), 1)
+	stroke(frame, Color3.fromRGB(45, 62, 76), 1)
 
 	create("TextLabel", {
 		Parent = frame,
@@ -898,7 +898,7 @@ function tabpage:AddDropdown(label, options, useside, multiselect)
 			Size = UDim2.new(1, 0, 0, optionheight),
 			BackgroundTransparency = 1,
 			Text = " " .. text,
-			TextColor3 = Color3.fromRGB(170, 210, 245),
+			TextColor3 = Color3.fromRGB(198, 214, 224),
 			Font = Enum.Font.PermanentMarker,
 			TextSize = 12,
 			TextXAlignment = Enum.TextXAlignment.Left,
@@ -917,7 +917,7 @@ function tabpage:AddDropdown(label, options, useside, multiselect)
 				opt.Text = (dropdown.multiselect and "✓ " or " ") .. text
 			else
 				opt.BackgroundTransparency = 1
-				opt.TextColor3 = Color3.fromRGB(170, 210, 245)
+				opt.TextColor3 = Color3.fromRGB(198, 214, 224)
 				opt.Text = " " .. text
 			end
 		end
@@ -931,7 +931,7 @@ function tabpage:AddDropdown(label, options, useside, multiselect)
 		opt.MouseEnter:Connect(function()
 			if not selected then
 				opt.BackgroundTransparency = 0
-				opt.BackgroundColor3 = Color3.fromRGB(15, 40, 65)
+				opt.BackgroundColor3 = Color3.fromRGB(20, 32, 44)
 			end
 		end)
 
