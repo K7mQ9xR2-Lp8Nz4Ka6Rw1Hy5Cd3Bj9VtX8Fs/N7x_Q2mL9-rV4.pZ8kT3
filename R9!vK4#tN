@@ -112,7 +112,7 @@ function library.new(config)
 		Text = config.ToggleLabel or "T",
 		Font = theme.font,
 		TextSize = 26,
-		TextColor3 = Color3.fromRGB(190, 60, 255)
+		TextColor3 = theme.textprimary
 	})
 	local toggledragging = false
 	local toggledragstart
