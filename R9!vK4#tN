@@ -73,14 +73,12 @@ function library.new(config)
 	self.taboffsets = {}
 	self.selectedindex = 1
 	self.dropdowns = {}
-
 	local screengui = create("ScreenGui", {
 		Name = config.Name or "e",
 		ResetOnSpawn = false,
 		Parent = coregui
 	})
 	self.screengui = screengui
-
 	local togglebtn = create("TextButton", {
 		Parent = screengui,
 		Size = UDim2.new(0, 45, 0, 45),
@@ -90,7 +88,6 @@ function library.new(config)
 		AutoButtonColor = false
 	})
 	corner(togglebtn, 12)
-
 	create("UIGradient", {
 		Parent = togglebtn,
 		Color = ColorSequence.new({
@@ -99,7 +96,6 @@ function library.new(config)
 		}),
 		Rotation = 45
 	})
-
 	local togglestroke = stroke(togglebtn)
 	create("UIGradient", {
 		Parent = togglestroke,
@@ -116,14 +112,12 @@ function library.new(config)
 		Text = config.ToggleLabel or "T",
 		Font = theme.font,
 		TextSize = 26,
-		TextColor3 = theme.textprimary,
-		theme.textprimary = Color3.fromRGB(170, 85, 255)
+		TextColor3 = theme.textprimary
 	})
 	local toggledragging = false
 	local toggledragstart
 	local toggledragpos
 	local togglemoved = false
-
 	togglebtn.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1
 			or input.UserInputType == Enum.UserInputType.Touch then
@@ -133,17 +127,14 @@ function library.new(config)
 			toggledragpos = togglebtn.Position
 		end
 	end)
-
 	togglebtn.InputEnded:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1
 			or input.UserInputType == Enum.UserInputType.Touch then
 			toggledragging = false
 		end
 	end)
-
 	local width = config.Width or 680
 	local height = config.Height or 460
-
 	local panel = create("Frame", {
 		Parent = screengui,
 		Size = UDim2.new(0, width, 0, height),
@@ -157,7 +148,6 @@ function library.new(config)
 	corner(panel, cornerradius)
 	stroke(panel)
 	self.panel = panel
-
 	local header = create("Frame", {
 		Parent = panel,
 		Size = UDim2.new(1, 0, 0, headerheight),
@@ -165,7 +155,6 @@ function library.new(config)
 		BackgroundColor3 = theme.headerbackground
 	})
 	corner(header, cornerradius)
-
 	create("TextLabel", {
 		Parent = header,
 		Size = UDim2.new(1, -10, 1, 0),
@@ -177,14 +166,12 @@ function library.new(config)
 		TextSize = 14,
 		TextXAlignment = Enum.TextXAlignment.Left
 	})
-
 	local sidebar = create("Frame", {
 		Parent = panel,
 		Size = UDim2.new(0, 140, 1, -(headerheight + footerheight + statusbarheight)),
 		Position = UDim2.new(0, 0, 0, headerheight),
 		BackgroundColor3 = theme.sidebarbackground
 	})
-
 	local indicator = create("Frame", {
 		Parent = sidebar,
 		Size = UDim2.new(0, 4, 0, 32),
@@ -193,7 +180,6 @@ function library.new(config)
 	})
 	corner(indicator, 2)
 	self.indicator = indicator
-
 	local tablist = create("ScrollingFrame", {
 		Parent = sidebar,
 		Size = UDim2.new(1, -5, 1, 0),
@@ -205,7 +191,6 @@ function library.new(config)
 	create("UIListLayout", { Parent = tablist, Padding = UDim.new(0, 5) })
 	create("UIPadding", { Parent = tablist, PaddingTop = UDim.new(0, 10) })
 	self.tablist = tablist
-
 	local content = create("Frame", {
 		Parent = panel,
 		Size = UDim2.new(1, -145, 1, -(headerheight + footerheight + statusbarheight)),
@@ -213,14 +198,12 @@ function library.new(config)
 		BackgroundTransparency = 1
 	})
 	self.content = content
-
 	local footer = create("Frame", {
 		Parent = panel,
 		Size = UDim2.new(1, 0, 0, footerheight),
 		Position = UDim2.new(0, 0, 1, -(footerheight + statusbarheight)),
 		BackgroundColor3 = theme.headerbackground
 	})
-
 	local avatar = create("ImageLabel", {
 		Parent = footer,
 		Size = UDim2.new(0, 34, 0, 34),
@@ -230,7 +213,6 @@ function library.new(config)
 	})
 	corner(avatar, 17)
 	stroke(avatar, theme.accentstroke, 1)
-
 	create("TextLabel", {
 		Parent = footer,
 		Size = UDim2.new(1, -58, 1, 0),
@@ -242,7 +224,6 @@ function library.new(config)
 		TextSize = 13,
 		TextXAlignment = Enum.TextXAlignment.Left
 	})
-
 	local statusbar = create("Frame", {
 		Parent = panel,
 		Size = UDim2.new(1, 0, 0, statusbarheight),
@@ -250,7 +231,6 @@ function library.new(config)
 		BackgroundColor3 = theme.accentselected
 	})
 	corner(statusbar, cornerradius)
-
 	local timerlabel = create("TextLabel", {
 		Parent = statusbar,
 		Size = UDim2.new(1, 0, 1, 0),
@@ -261,12 +241,10 @@ function library.new(config)
 		TextSize = 12
 	})
 	self.timerlabel = timerlabel
-
 	local starttime = os.clock()
 	function self:ResetTimer()
 		starttime = os.clock()
 	end
-
 	timerlabel.Text = formattime(0)
 	local accumulator = 0
 	runservice.Heartbeat:Connect(function(dt)
@@ -276,7 +254,6 @@ function library.new(config)
 			timerlabel.Text = formattime(os.clock() - starttime)
 		end
 	end)
-
 	local resizehandle = create("TextButton", {
 		Parent = panel,
 		Size = UDim2.new(0, 18, 0, 18),
@@ -286,14 +263,12 @@ function library.new(config)
 		Text = "",
 		ZIndex = 10
 	})
-
 	local open = true
 	togglebtn.MouseButton1Click:Connect(function()
 		if togglemoved then return end
 		open = not open
 		panel.Visible = open
 	end)
-
 	self.Open = function()
 		open = true
 		panel.Visible = true
@@ -302,14 +277,12 @@ function library.new(config)
 		open = false
 		panel.Visible = false
 	end
-
 	local dragging = false
 	local dragstart
 	local dragpos
 	local resizing = false
 	local resizestart
 	local resizesize
-
 	local function ondragstart(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1
 			or input.UserInputType == Enum.UserInputType.Touch then
@@ -318,14 +291,12 @@ function library.new(config)
 			dragpos = panel.Position
 		end
 	end
-
 	local function ondragend(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1
 			or input.UserInputType == Enum.UserInputType.Touch then
 			dragging = false
 		end
 	end
-
 	header.InputBegan:Connect(ondragstart)
 	header.InputEnded:Connect(ondragend)
 	sidebar.InputBegan:Connect(ondragstart)
@@ -338,7 +309,6 @@ function library.new(config)
 	footer.InputEnded:Connect(ondragend)
 	statusbar.InputBegan:Connect(ondragstart)
 	statusbar.InputEnded:Connect(ondragend)
-
 	resizehandle.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1
 			or input.UserInputType == Enum.UserInputType.Touch then
@@ -347,20 +317,17 @@ function library.new(config)
 			resizesize = panel.Size
 		end
 	end)
-
 	resizehandle.InputEnded:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1
 			or input.UserInputType == Enum.UserInputType.Touch then
 			resizing = false
 		end
 	end)
-
 	userinputservice.InputChanged:Connect(function(input)
 		if input.UserInputType ~= Enum.UserInputType.MouseMovement
 			and input.UserInputType ~= Enum.UserInputType.Touch then
 			return
 		end
-
 		if dragging then
 			local delta = input.Position - dragstart
 			panel.Position = UDim2.new(
@@ -383,10 +350,8 @@ function library.new(config)
 			)
 		end
 	end)
-
 	self._ondragstart = ondragstart
 	self._ondragend = ondragend
-
 	return self
 end
 
@@ -395,7 +360,6 @@ tabpage.__index = tabpage
 
 function library:AddTab(name)
 	local index = #self.tabs + 1
-
 	local btn = create("TextButton", {
 		Parent = self.tablist,
 		Size = UDim2.new(1, -15, 0, 32),
@@ -408,7 +372,6 @@ function library:AddTab(name)
 		TextXAlignment = Enum.TextXAlignment.Left
 	})
 	corner(btn)
-
 	btn.MouseEnter:Connect(function()
 		if btn.BackgroundTransparency == 1 then
 			tweenservice:Create(btn, TweenInfo.new(0.15), {
@@ -417,7 +380,6 @@ function library:AddTab(name)
 			}):Play()
 		end
 	end)
-
 	btn.MouseLeave:Connect(function()
 		if btn.TextColor3 ~= theme.textprimary then
 			tweenservice:Create(btn, TweenInfo.new(0.15), {
@@ -425,14 +387,12 @@ function library:AddTab(name)
 			}):Play()
 		end
 	end)
-
 	local page = create("Frame", {
 		Parent = self.content,
 		Size = UDim2.new(1, 0, 1, 0),
 		BackgroundTransparency = 1,
 		Visible = index == 1
 	})
-
 	local main = create("ScrollingFrame", {
 		Parent = page,
 		Size = UDim2.new(mainratio, -4, 1, 0),
@@ -449,7 +409,6 @@ function library:AddTab(name)
 		PaddingLeft = UDim.new(0, 8),
 		PaddingRight = UDim.new(0, 8)
 	})
-
 	create("Frame", {
 		Parent = page,
 		Size = UDim2.new(0, 1, 1, -12),
@@ -457,7 +416,6 @@ function library:AddTab(name)
 		BackgroundColor3 = theme.divider,
 		BorderSizePixel = 0
 	})
-
 	local side = create("ScrollingFrame", {
 		Parent = page,
 		Size = UDim2.new(1 - mainratio, -4, 1, 0),
@@ -474,7 +432,6 @@ function library:AddTab(name)
 		PaddingLeft = UDim.new(0, 8),
 		PaddingRight = UDim.new(0, 8)
 	})
-
 	if self._ondragstart and self._ondragend then
 		main.InputBegan:Connect(self._ondragstart)
 		main.InputEnded:Connect(self._ondragend)
@@ -483,14 +440,11 @@ function library:AddTab(name)
 		page.InputBegan:Connect(self._ondragstart)
 		page.InputEnded:Connect(self._ondragend)
 	end
-
 	table.insert(self.tabs, { Button = btn, Page = page })
 	table.insert(self.taboffsets, 10 + (index - 1) * 37)
-
 	btn.MouseButton1Click:Connect(function()
 		self:SelectTab(index)
 	end)
-
 	return setmetatable({
 		page = page,
 		main = main,
@@ -549,7 +503,6 @@ function tabpage:AddButton(text, callback, useside)
 	})
 	corner(btn)
 	stroke(btn, Color3.fromRGB(45, 62, 76), 1)
-
 	btn.Activated:Connect(function()
 		if callback then callback() end
 	end)
@@ -569,7 +522,6 @@ function tabpage:AddToggle(text, callback, useside)
 		TextXAlignment = Enum.TextXAlignment.Left
 	})
 	corner(btn)
-
 	local box = create("Frame", {
 		Parent = btn,
 		Size = UDim2.new(0, 16, 0, 16),
@@ -577,7 +529,6 @@ function tabpage:AddToggle(text, callback, useside)
 		BackgroundColor3 = theme.inputbackground
 	})
 	corner(box, 4)
-
 	local state = false
 	btn.Activated:Connect(function()
 		state = not state
@@ -596,7 +547,6 @@ function tabpage:AddTextbox(label, placeholder, callback, useside)
 	})
 	corner(frame)
 	stroke(frame, Color3.fromRGB(45, 62, 76), 1)
-
 	create("TextLabel", {
 		Parent = frame,
 		Size = UDim2.new(0.45, 0, 1, 0),
@@ -608,7 +558,6 @@ function tabpage:AddTextbox(label, placeholder, callback, useside)
 		TextSize = 13,
 		TextXAlignment = Enum.TextXAlignment.Left
 	})
-
 	local box = create("TextBox", {
 		Parent = frame,
 		Size = UDim2.new(0.5, -14, 0, 24),
@@ -623,7 +572,6 @@ function tabpage:AddTextbox(label, placeholder, callback, useside)
 		ClearTextOnFocus = false
 	})
 	corner(box, 5)
-
 	box.FocusLost:Connect(function(enter)
 		if callback then callback(box.Text, enter) end
 	end)
@@ -635,7 +583,6 @@ function tabpage:AddSlider(label, min, max, default, callback, useside)
 	min = min or 0
 	max = max or 100
 	default = math.clamp(default or min, min, max)
-
 	local frame = create("Frame", {
 		Parent = parent,
 		Size = UDim2.new(1, 0, 0, 52),
@@ -643,7 +590,6 @@ function tabpage:AddSlider(label, min, max, default, callback, useside)
 	})
 	corner(frame)
 	stroke(frame, Color3.fromRGB(45, 62, 76), 1)
-
 	create("TextLabel", {
 		Parent = frame,
 		Size = UDim2.new(1, -70, 0, 20),
@@ -655,7 +601,6 @@ function tabpage:AddSlider(label, min, max, default, callback, useside)
 		TextSize = 13,
 		TextXAlignment = Enum.TextXAlignment.Left
 	})
-
 	local valuebox = create("TextBox", {
 		Parent = frame,
 		Size = UDim2.new(0, 50, 0, 20),
@@ -668,7 +613,6 @@ function tabpage:AddSlider(label, min, max, default, callback, useside)
 		ClearTextOnFocus = false
 	})
 	corner(valuebox, 5)
-
 	local track = create("Frame", {
 		Parent = frame,
 		Size = UDim2.new(1, -20, 0, 6),
@@ -676,14 +620,12 @@ function tabpage:AddSlider(label, min, max, default, callback, useside)
 		BackgroundColor3 = theme.inputbackground
 	})
 	corner(track, 3)
-
 	local fill = create("Frame", {
 		Parent = track,
 		Size = UDim2.new(0, 0, 1, 0),
 		BackgroundColor3 = theme.accentfill
 	})
 	corner(fill, 3)
-
 	local knob = create("Frame", {
 		Parent = track,
 		Size = UDim2.new(0, 12, 0, 12),
@@ -692,7 +634,6 @@ function tabpage:AddSlider(label, min, max, default, callback, useside)
 		ZIndex = 5
 	})
 	corner(knob, 6)
-
 	local value = default
 	local function set(v, skiptext)
 		v = math.clamp(v, min, max)
@@ -706,13 +647,11 @@ function tabpage:AddSlider(label, min, max, default, callback, useside)
 		if callback then callback(v) end
 	end
 	set(default)
-
 	local sliding = false
 	local function updateslider(x)
 		local ratio = (x - track.AbsolutePosition.X) / track.AbsoluteSize.X
 		set(min + ratio * (max - min))
 	end
-
 	track.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1
 			or input.UserInputType == Enum.UserInputType.Touch then
@@ -720,28 +659,24 @@ function tabpage:AddSlider(label, min, max, default, callback, useside)
 			updateslider(input.Position.X)
 		end
 	end)
-
 	track.InputEnded:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1
 			or input.UserInputType == Enum.UserInputType.Touch then
 			sliding = false
 		end
 	end)
-
 	userinputservice.InputChanged:Connect(function(input)
 		if sliding and (input.UserInputType == Enum.UserInputType.MouseMovement
 			or input.UserInputType == Enum.UserInputType.Touch) then
 			updateslider(input.Position.X)
 		end
 	end)
-
 	userinputservice.InputEnded:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1
 			or input.UserInputType == Enum.UserInputType.Touch then
 			sliding = false
 		end
 	end)
-
 	valuebox.FocusLost:Connect(function()
 		local n = tonumber(valuebox.Text)
 		if n then
@@ -751,7 +686,6 @@ function tabpage:AddSlider(label, min, max, default, callback, useside)
 			valuebox.Text = tostring(value)
 		end
 	end)
-
 	return {
 		Set = set,
 		Get = function() return value end
@@ -762,11 +696,9 @@ function tabpage:AddDropdown(label, options, useside, multiselect)
 	if useside == nil then useside = true end
 	local parent = useside and self.side or self.main
 	local lib = self.library
-
 	local optionheight = 24
 	local optionpadding = 2
 	local maxheight = 150
-
 	local container = create("Frame", {
 		Parent = parent,
 		Size = UDim2.new(1, 0, 0, 26),
@@ -775,7 +707,6 @@ function tabpage:AddDropdown(label, options, useside, multiselect)
 		ZIndex = 2
 	})
 	create("UIListLayout", { Parent = container, Padding = UDim.new(0, 4) })
-
 	local header = create("TextButton", {
 		Parent = container,
 		Size = UDim2.new(1, 0, 0, 26),
@@ -785,7 +716,6 @@ function tabpage:AddDropdown(label, options, useside, multiselect)
 		ZIndex = 2
 	})
 	corner(header)
-
 	local headerlabel = create("TextLabel", {
 		Parent = header,
 		Size = UDim2.new(1, -10, 1, 0),
@@ -798,14 +728,12 @@ function tabpage:AddDropdown(label, options, useside, multiselect)
 		TextXAlignment = Enum.TextXAlignment.Left,
 		ZIndex = 2
 	})
-
 	local closebar = create("Frame", {
 		Parent = container,
 		Size = UDim2.new(1, 0, 0, 20),
 		BackgroundTransparency = 1,
 		ZIndex = 2
 	})
-
 	local closebtn = create("TextButton", {
 		Parent = closebar,
 		Size = UDim2.new(1, 0, 1, 0),
@@ -817,7 +745,6 @@ function tabpage:AddDropdown(label, options, useside, multiselect)
 		ZIndex = 2
 	})
 	corner(closebtn, 4)
-
 	local list = create("ScrollingFrame", {
 		Parent = container,
 		Size = UDim2.new(1, 0, 0, 0),
@@ -838,7 +765,6 @@ function tabpage:AddDropdown(label, options, useside, multiselect)
 		PaddingLeft = UDim.new(0, 4),
 		PaddingRight = UDim.new(0, 4)
 	})
-
 	local dropdown = {
 		frame = container,
 		content = list,
@@ -846,9 +772,7 @@ function tabpage:AddDropdown(label, options, useside, multiselect)
 		selected = {},
 		_options = {}
 	}
-
 	local expanded = true
-
 	local function resize()
 		local count = #dropdown._options
 		local h = 0
@@ -857,7 +781,6 @@ function tabpage:AddDropdown(label, options, useside, multiselect)
 		end
 		list.Size = UDim2.new(1, 0, 0, h)
 	end
-
 	local function setz(z)
 		container.ZIndex = z
 		header.ZIndex = z
@@ -871,7 +794,6 @@ function tabpage:AddDropdown(label, options, useside, multiselect)
 			end
 		end
 	end
-
 	function dropdown:SetOpen(state)
 		expanded = state
 		list.Visible = state
@@ -886,11 +808,9 @@ function tabpage:AddDropdown(label, options, useside, multiselect)
 			end
 		end
 	end
-
 	dropdown._IsExpanded = function()
 		return expanded
 	end
-
 	function dropdown:AddOption(text, callback)
 		local opt = create("TextButton", {
 			Parent = list,
@@ -904,10 +824,8 @@ function tabpage:AddDropdown(label, options, useside, multiselect)
 			ZIndex = expanded and 10 or 2,
 			AutoButtonColor = false
 		})
-
 		local selected = false
 		local entry
-
 		local function refresh()
 			if selected then
 				opt.BackgroundTransparency = 0
@@ -920,26 +838,22 @@ function tabpage:AddDropdown(label, options, useside, multiselect)
 				opt.Text = " " .. text
 			end
 		end
-
 		local function setselected(state)
 			selected = state
 			refresh()
 			dropdown.selected[text] = state or nil
 		end
-
 		opt.MouseEnter:Connect(function()
 			if not selected then
 				opt.BackgroundTransparency = 0
 				opt.BackgroundColor3 = Color3.fromRGB(20, 32, 44)
 			end
 		end)
-
 		opt.MouseLeave:Connect(function()
 			if not selected then
 				opt.BackgroundTransparency = 1
 			end
 		end)
-
 		opt.Activated:Connect(function()
 			if dropdown.multiselect then
 				setselected(not selected)
@@ -954,13 +868,11 @@ function tabpage:AddDropdown(label, options, useside, multiselect)
 				if callback then callback() end
 			end
 		end)
-
 		entry = { Button = opt, Text = text, SetSelected = setselected }
 		table.insert(dropdown._options, entry)
 		resize()
 		return opt
 	end
-
 	function dropdown:RemoveOption(btn)
 		if not btn then return end
 		for i, entry in ipairs(dropdown._options) do
@@ -973,7 +885,6 @@ function tabpage:AddDropdown(label, options, useside, multiselect)
 		btn:Destroy()
 		resize()
 	end
-
 	function dropdown:Clear()
 		for _, child in ipairs(list:GetChildren()) do
 			if child:IsA("TextButton") then
@@ -984,7 +895,6 @@ function tabpage:AddDropdown(label, options, useside, multiselect)
 		dropdown.selected = {}
 		resize()
 	end
-
 	function dropdown:GetSelected()
 		local result = {}
 		for _, entry in ipairs(dropdown._options) do
@@ -994,27 +904,21 @@ function tabpage:AddDropdown(label, options, useside, multiselect)
 		end
 		return result
 	end
-
 	header.Activated:Connect(function()
 		dropdown:SetOpen(not expanded)
 	end)
-
 	closebtn.Activated:Connect(function()
 		dropdown:SetOpen(false)
 	end)
-
 	if options then
 		for _, opt in ipairs(options) do
 			dropdown:AddOption(opt.Text, opt.Callback)
 		end
 	end
-
 	if lib then
 		table.insert(lib.dropdowns, dropdown)
 	end
-
 	dropdown:SetOpen(true)
 	return dropdown
 end
-
 return library
